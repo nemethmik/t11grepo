@@ -16,19 +16,25 @@ package "model" {
   [LoggedInUser]
 }
 package "b1s" {
+  [LoginDataSource] - ILoginDS
   [LoginDataSource] ..> ServiceLayer
   [LoginDataSource] ..> [LoggedInUser]
-  [LoginRepository] ..> [LoginDataSource]
+  [Repository] ..> [LoginDataSource]
+  [Repository] - getLoginDS
+  getLoginDS ..> ILoginDS
 }
 package "vm" {
-  [LoginViewModel] ..> [LoggedInUser]
-  [LoginViewModel] ..> [LoginRepository]
-  [LoginViewModelFactory] ..>[LoginViewModel]
+  [AppViewModel] - ILoginVM
+  [AppViewModel] ..> [LoggedInUser]
+  [AppViewModel] ..> getLoginDS
+  [ViewModelFactory] - getLoginVM
+  [ViewModelFactory] ..>[AppViewModel]
+  getLoginVM ..> ILoginVM
 }
 package "app" {
   [LoginActivity] ..> [LoggedInUser]
-  [LoginActivity] .u.> [LoginViewModel]
-  [LoginActivity] .u.> [LoginViewModelFactory]
+  [LoginActivity] .u.> [ILoginVM]
+  [LoginActivity] .u.> [getLoginVM]
   [MainActivity]
 }
 

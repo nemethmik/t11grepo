@@ -1,6 +1,4 @@
-package com.tiva11.grepo;
-
-import com.google.gson.Gson;
+package com.tiva11.vm;
 
 import org.junit.Test;
 
@@ -15,8 +13,5 @@ public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
         assertEquals(4, 2 + 2);
-    }
-    public void gson_test1() {
-        //Gson
     }
 }
