@@ -32,3 +32,16 @@ activity template and AndroidX artifacts.
   and add NavHostFragment from the containers palette with an id
   nav_host_fragment.
   
+## Module Architecture
+- model is the home of all business entities, these are independent of
+  any other modules, but all other modules use the data structures from
+  this module.
+- b1s is the business logic module, it is the only module that perform
+  network calls to SAP B1 or save the JSON files
+- vm stands for view model, and is responsible for handling the data
+  structures for the activities and fragments and a nediator between b1s
+  and activities/fragments
+- app is the home of the activities and fragments and uses the services
+  vm while relying the passive data structures of the model module.
+
+![Architecture Diagram](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/nemethmik/t11grepo/master/modulearchitecture.puml)  
