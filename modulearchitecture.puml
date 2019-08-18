@@ -1,0 +1,35 @@
+@startuml
+database "HANA" {
+  folder "SBODEMOUS" {
+	[OITM]
+  }
+  frame "COMPANY DB" {
+	[OCLG]
+  }
+}
+
+cloud {
+  ServiceLayer - [SAP B1]
+  [SAP B1] .u.> [OITM]
+}
+package "model" {
+  [LoggedInUser]
+}
+package "b1s" {
+  [LoginDataSource] ..> ServiceLayer
+  [LoginDataSource] ..> [LoggedInUser]
+  [LoginRepository] ..> [LoginDataSource]
+}
+package "vm" {
+  [LoginViewModel] ..> [LoggedInUser]
+  [LoginViewModel] ..> [LoginRepository]
+  [LoginViewModelFactory] ..>[LoginViewModel]
+}
+package "app" {
+  [LoginActivity] ..> [LoggedInUser]
+  [LoginActivity] .u.> [LoginViewModel]
+  [LoginActivity] .u.> [LoginViewModelFactory]
+  [MainActivity]
+}
+
+@enduml
