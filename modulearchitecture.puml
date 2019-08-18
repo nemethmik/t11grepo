@@ -13,26 +13,26 @@ cloud {
   [SAP B1] .u.> [OITM]
 }
 package "model" {
-  [LoggedInUser]
+  [User]
 }
 package "b1s" {
   [LoginDataSource] - ILoginDS
   [LoginDataSource] ..> ServiceLayer
-  [LoginDataSource] ..> [LoggedInUser]
+  [LoginDataSource] ..> [User]
   [Repository] ..> [LoginDataSource]
   [Repository] - getLoginDS
   getLoginDS ..> ILoginDS
 }
 package "vm" {
   [AppViewModel] - ILoginVM
-  [AppViewModel] ..> [LoggedInUser]
+  [AppViewModel] ..> [User]
   [AppViewModel] ..> getLoginDS
   [ViewModelFactory] - getLoginVM
   [ViewModelFactory] ..>[AppViewModel]
   getLoginVM ..> ILoginVM
 }
 package "app" {
-  [LoginActivity] ..> [LoggedInUser]
+  [LoginActivity] ..> [User]
   [LoginActivity] .u.> [ILoginVM]
   [LoginActivity] .u.> [getLoginVM]
   [MainActivity]
