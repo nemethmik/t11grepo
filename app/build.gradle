@@ -35,4 +35,5 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.2.0-alpha01'
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     implementation 'com.google.code.gson:gson:2.8.5'
+    implementation project(path: ':b1s')
 }
