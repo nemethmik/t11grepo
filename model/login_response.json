@@ -1,0 +1,6 @@
+{
+    "odata.metadata": "http://hana93srv:50001/b1s/v1/$metadata#B1Sessions/@Element",
+    "SessionId": "71958ee8-b513-11e9-8000-9ed5a15b6e75",
+    "Version": "930140",
+    "SessionTimeout": 30
+ }

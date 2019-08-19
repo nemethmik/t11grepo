@@ -3,14 +3,16 @@ package com.tiva11.vm;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 
-import com.tiva11.model.User;
-import com.tiva11.model.Result;
+import com.tiva11.model.B1Session;
 
-public interface ILoginVM {
+public interface B1LoginVMIntf {
     LiveData<LoginFormState> getLoginFormState();
-    LiveData<Result<User>> getLoginResult();
-    void login(String username, String password);
+    LiveData<B1Session> getLoginResult();
+    LiveData<Integer> getLogoutResult();
+    LiveData<Throwable> getError();
+    void loginAsync(String username, String password);
     void loginDataChanged(String username, String password);
+    void logoutAsync();
     public static class LoginFormState {
         @Nullable
         private Integer usernameError;
@@ -45,3 +47,4 @@ public interface ILoginVM {
         }
     }
 }
+

@@ -1,2 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.tiva11.b1s" />
+    package="com.tiva11.b1s" >
+    <uses-permission android:name="android.permission.INTERNET"/>
+</manifest>
