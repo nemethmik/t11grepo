@@ -1,40 +1,55 @@
 @startuml
-database "HANA" {
-  folder "SBODEMOUS" {
-	[OITM]
-  }
-  frame "COMPANY DB" {
-	[OCLG]
-  }
-}
+'database "HANA" {
+'  folder "SBODEMOUS" {
+'	[OITM]
+'  }
+'  frame "COMPANY DB" {
+'	[OCLG]
+'  }
+'}
 
 cloud {
   ServiceLayer - [SAP B1]
-  [SAP B1] .u.> [OITM]
+'  [SAP B1] .u.> [OITM]
 }
 package "model" {
-  [User]
+  [B1Session]
+  [B1Activities] --> [B1Activity]
 }
 package "b1s" {
-  [LoginDataSource] - ILoginDS
-  [LoginDataSource] ..> ServiceLayer
-  [LoginDataSource] ..> [User]
-  [Repository] ..> [LoginDataSource]
-  [Repository] - getLoginDS
-  getLoginDS ..> ILoginDS
+  [B1LoginDataSourceImpl] -u- B1LoginDataSourceIntf
+  B1LoginRetrofitIntf ..> ServiceLayer
+  B1ActivitiesRetrofitIntf ..> ServiceLayer
+  [B1LoginDataSourceImpl] ..> [B1Session]
+  [B1ActivitiesDataSourceImpl] -- B1ActivitiesDataSourceIntf
+  [B1ActivitiesDataSourceImpl] ..> B1ActivitiesRetrofitIntf 
+  [B1LoginDataSourceImpl] ..> B1LoginRetrofitIntf
+  [DataSourceRepository] ..> [B1LoginDataSourceImpl]
+  [DataSourceRepository] ..> [B1ActivitiesDataSourceImpl]
+  [DataSourceRepository] - getLoginDS
+  getActivitiesDS - [DataSourceRepository]
+  getLoginDS ..> B1LoginDataSourceIntf
 }
 package "vm" {
-  [AppViewModel] - ILoginVM
-  [AppViewModel] ..> [User]
+  [AppViewModel] - B1LoginVMIntf
+  [AppViewModel] - B1ActivitiesVMIntf
+  [AppViewModel] ..> getActivitiesDS
+  [AppViewModel] ..> [B1Session]
   [AppViewModel] ..> getLoginDS
+  [AppViewModel] ..> B1LoginDataSourceIntf
+  [AppViewModel] ..> B1ActivitiesDataSourceIntf
   [ViewModelFactory] - getLoginVM
+  [ViewModelFactory] - getActivitiesVM
   [ViewModelFactory] ..>[AppViewModel]
-  getLoginVM ..> ILoginVM
+  getLoginVM ..> B1LoginVMIntf
 }
 package "app" {
-  [LoginActivity] ..> [User]
-  [LoginActivity] .u.> [ILoginVM]
-  [LoginActivity] .u.> [getLoginVM]
+  [LoginActivity] ..> [B1Session]
+  [LoginActivity] .u.> B1LoginVMIntf
+  [LoginActivity] .u.> B1ActivitiesVMIntf
+  [LoginActivity] .u.> getLoginVM
+  [LoginActivity] .u.> [getActivitiesVM]
+  [LoginActivity] .u.> [B1Activities]
   [MainActivity]
 }
 

@@ -24,9 +24,9 @@ public class DataSourceRepository {
         return instance;
     }
     public B1LoginDataSourceIntf getLoginDS() {return loginDataSource;}
-    private B1ActivitiesDataSource activitiesDataSource = null;
-    public BIActivitiesDataSourceIntf getActivitiesDS() {
-        if(activitiesDataSource == null) activitiesDataSource = new B1ActivitiesDataSource(loginDataSource);
+    private B1ActivitiesDataSourceImpl activitiesDataSource = null;
+    public B1ActivitiesDataSourceIntf getActivitiesDS() {
+        if(activitiesDataSource == null) activitiesDataSource = new B1ActivitiesDataSourceImpl(loginDataSource);
         return activitiesDataSource;
     }
     private static ScheduledExecutorService executorServiceThreadPool = Executors.newScheduledThreadPool(3);

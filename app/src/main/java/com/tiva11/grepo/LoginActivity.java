@@ -2,6 +2,7 @@ package com.tiva11.grepo;
 
 import android.app.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
 
 import android.os.Bundle;
@@ -77,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
 //        });
         //This is the classic lambda expression syntax,
         //remember in Java lambdas are only for interfaces, not generic function definitions
-        //loginVM.getLoginResult().observe(this,lr->onChanged_LoginResult(lr));
+//        loginVM.getLoginResult().observe(this,lr->onChanged_LoginResult(lr));
         //This is the Java 8 method reference syntax.
         loginVM.getLoginResult().observe(this,this::onChanged_LoginResult);
         loginVM.getLogoutResult().observe(this,this::onChanged_LogoutResult);
@@ -150,23 +151,22 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-    public void onChanged_LoginResult(@Nullable B1Session loginResult) {
+    public void onChanged_LoginResult(@NonNull B1Session loginResult) {
         loadingProgressBar.setVisibility(View.GONE);
-        if (loginResult != null) {
-            updateUiWithUser(loginResult);
-            setResult(Activity.RESULT_OK);
-            //Complete and destroy login activity once successful
-            //finish();
-        }
+        updateUiWithUser(loginResult);
+        setResult(Activity.RESULT_OK);
+        //Complete and destroy login activity once successful
+        //finish();
     }
-    public void onChanged_LogoutResult(@Nullable Integer logoutResult) {
+    public void onChanged_LogoutResult(@NonNull Integer logoutResult) {
         loadingProgressBar.setVisibility(View.GONE);
         Toast.makeText(getApplicationContext(), "Logout result "
                 + logoutResult, Toast.LENGTH_SHORT).show();
     }
-    public void onChanged_Activities(@Nullable B1Activities b1Activities) {
+    public void onChanged_Activities(@NonNull B1Activities b1Activities) {
         loadingProgressBar.setVisibility(View.GONE);
         Toast.makeText(getApplicationContext(), "Number of B1 activities "
-                + b1Activities.getValue().size(), Toast.LENGTH_SHORT).show();
+                + (b1Activities.getValue() == null ? 0 : b1Activities.getValue().size())
+                , Toast.LENGTH_SHORT).show();
     }
 }
