@@ -5,7 +5,11 @@ import com.tiva11.model.B1Activity;
 import com.tiva11.model.B1LoginRequest;
 import com.tiva11.model.B1Session;
 
+import java.util.concurrent.CompletableFuture;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import okhttp3.Response;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
@@ -14,12 +18,13 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface B1LoginRetrofitIntf {
-    @GET("Activities")
-    Call<B1Activities> queryAllActivities();
-    @GET("Activities({code})")
-    Call<B1Activity> getRecipe(@Path("code") int activityCode);
+//    @POST("Login")
+//    Call<B1Session> login(@Body B1LoginRequest loginRequest);
     @POST("Login")
-    Call<B1Session> login(@Body B1LoginRequest loginRequest);
+    CompletableFuture<B1Session> login(@Body B1LoginRequest loginRequest);
+//    @GET("Logout")
+//    Call<Void> logout(@Header("Cookie") String b1Cookies);
+    //It is not possible to use Retrofit/okhttp3 Response type here, but you van use Void, and ResponseBody
     @GET("Logout")
-    Call<Void> logout(@Header("Cookie") String b1Cookies);
+    CompletableFuture<Void> logout(@Header("Cookie") String b1Cookies);
 }

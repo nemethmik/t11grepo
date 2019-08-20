@@ -45,8 +45,9 @@ class AppViewModel extends ViewModel implements B1LoginVMIntf, B1ActivitiesVMInt
 //        dataSourceRepository.getLoginDS().loginAsync("http://192.168.103.206:50001/b1s/v1/", username, password,"SBODEMOUS"
 //                ,mldLoginResult,mldError);
         String vtcServer = "http://192.168.103.206:50001/b1s/v1/";
-        dataSourceRepository.loginAsync(vtcServer, username, password,"SBODEMOUS"
-//        dataSourceRepository.loginAsync(initServer, terra, pwd,"SBODEMOHU"
+        String companyDB = "SBODEMOHU";
+        dataSourceRepository.getLoginDS().loginAsync(vtcServer, username, password,"SBODEMOUS"
+//        dataSourceRepository.getLoginDS().loginAsync(initServer, terra, pwd,"SBODEMOHU"
         ,mldLoginResult,mldError);
     }
     @Override

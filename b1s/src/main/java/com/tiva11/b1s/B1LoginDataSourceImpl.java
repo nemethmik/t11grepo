@@ -18,6 +18,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.HttpException;
@@ -41,6 +42,10 @@ class B1LoginDataSourceImpl implements B1LoginDataSourceIntf {
                 .build();
     }
 
+    /*
+     * Only the first user has to define the server url, subsequent calls can simply call
+     * with null argument.
+     */
     Retrofit getHttpClient(final String serverUrl) {
         if(_httpClient == null) {
             if(serverUrl == null) throw new RuntimeException("No B1 Server URL Defined. Not logged in");
@@ -64,121 +69,54 @@ class B1LoginDataSourceImpl implements B1LoginDataSourceIntf {
         if(b1Session == null) throw new RuntimeException("No B1 Session");
         return b1Session;
     }
-    /*
-    * Only the first user has to define the server url, subsequent calls can simply call
-    * with null argument.
-     */
-    @Override
-    public void loginAsync(final String serverUrl, String username, String password, String companyDB,
-                           @NonNull final MutableLiveData<B1Session> mldSession,
-                           @NonNull final MutableLiveData<Throwable> mldError) {
-        Throwable anyError = null;
-        try {
-            final B1LoginRequest lr = new B1LoginRequest();
-            lr.setCompanyDB(companyDB);
-            lr.setUserName(username);
-            lr.setPassword(password);
-            Call<B1Session> call = getApi(serverUrl).login(lr);
-            Log.i(TAG, "login: " + serverUrl + "DB = " + lr.getCompanyDB());
-            call.enqueue(new Callback<B1Session>() {
-                @Override
-                public void onResponse(Call<B1Session> call, Response<B1Session> response) {
-                    Throwable anyError = null;
-                    if (response.isSuccessful() && response.body() != null) {
-                        B1LoginDataSourceImpl.this.b1Session = response.body();
-                        B1LoginDataSourceImpl.this.b1Session._setSession(serverUrl,lr);
-                        mldSession.postValue(B1LoginDataSourceImpl.this.b1Session);
-                    } else {
-                        if (response.errorBody() != null) {
-                            try { //It's interesting that errorBody().string is declared with throws IOException, funny
-                                B1Error b1Error = getGson().fromJson(response.errorBody().string(), B1Error.class);
-                                if (b1Error != null) {
-                                    anyError = new B1Exception(b1Error,response.code(),response.message());
-                                } else {
-                                    anyError = new Exception(response.errorBody().string(),new HttpException(response));
-                                }
-                            } catch (IOException e) {
-                                anyError = e;
-                            }
-                        } else {
-                            anyError = new Exception("No error body in failed response",new HttpException(response));
-                        }
-                    }
-                    if(anyError != null) mldError.postValue(anyError);
-                }
-                @Override
-                public void onFailure(Call<B1Session> call, Throwable t) {
-                    mldError.postValue(t);
-                }
-            });
-        } catch(Throwable t) {
-            anyError = t;
-        }
-        if(anyError != null) {
-            //anyError.printStackTrace();
-            mldError.postValue(anyError);
-        }
-    }
-    /*
-     *  Don't call this function on the UI thread. Call it from a Runnable or Callable.
-     */
-    @Override
-    public B1Session login(@NonNull String serverUrl,@NonNull String username,@NonNull String password,@NonNull String companyDB)
-        throws IOException, B1Exception {
-        final B1LoginRequest lr = new B1LoginRequest(username,password,companyDB);
-        Call<B1Session> call = getApi(serverUrl).login(lr);
-        //Log.i(TAG, "login: " + serverUrl + "DB = " + lr.getCompanyDB());
-        Response<B1Session> response = call.execute();
-        if (response.isSuccessful() && response.body() != null) {
-            this.b1Session = response.body();
-            this.b1Session._setSession(serverUrl,lr);
-            return this.b1Session;
-        } else {
-            if (response.errorBody() != null) {
-                B1Error b1Error = getGson().fromJson(response.errorBody().string(), B1Error.class);
+    public static <T> T exceptionally(Throwable e,@NonNull final MutableLiveData<Throwable> mldError) {
+        if(e instanceof HttpException || e.getCause() instanceof HttpException) {
+            try {
+                HttpException httpException = e instanceof HttpException ? (HttpException)e : (HttpException)e.getCause();
+                B1Error b1Error = getGson().fromJson(httpException.response().errorBody().string(), B1Error.class);
                 if (b1Error != null) {
-                    throw new B1Exception(b1Error,response.code(),response.message());
+                    throw new B1Exception(b1Error,httpException.response().code(), httpException.response().message());
                 }
+            } catch(Throwable t){
+                e = t;
             }
-            throw  new B1Exception(new B1Error(), response.code(),response.message());
         }
+        mldError.postValue(e);
+        return null;
     }
 
     @Override
-    public void logoutAsync(@NonNull final MutableLiveData<Integer> mldLogoutResult,
-                       @NonNull final MutableLiveData<Throwable> mldError) {
+    public void loginAsync(@NonNull final String serverUrl, @NonNull String username,
+                           @NonNull String password, @NonNull String companyDB,
+                                   @NonNull final MutableLiveData<B1Session> mldSession,
+                                   @NonNull final MutableLiveData<Throwable> mldError) {
         try {
-            CompletableFuture.supplyAsync(() -> {
-                try {
-                    Log.i(TAG, "logoutAsync: B1 Cookies " + b1Session.getB1Cookies());
-                    Call<Void> call = getApi(null).logout(b1Session.getB1Cookies());
-                    Response<Void> response = call.execute();
-                    if (response.isSuccessful()) {
-                        b1Session._logoutSession();
-                        return response.code();
-                    } else {
-                        if (response.errorBody() != null) {
-                            B1Error b1Error = getGson().fromJson(response.errorBody().string(), B1Error.class);
-                            if (b1Error != null) {
-                                throw new CompletionException(new B1Exception(b1Error, response.code(), response.message()));
-                            }
-                        }
-                        throw new CompletionException(new B1Exception(new B1Error(), response.code(), response.message()));
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    throw new CompletionException(e);
-                }
+            final B1LoginRequest lr = new B1LoginRequest(username,password, companyDB);
+            getApi(serverUrl).login(lr)
+            .thenAccept(responseBody -> {
+                this.b1Session = responseBody;
+                b1Session._setSession(serverUrl,lr);
+                mldSession.postValue(b1Session);
             })
-            .thenApply((httpStatusCode) -> {
-                mldLogoutResult.postValue(httpStatusCode);
-                return 0;
+            .exceptionally(e -> exceptionally(e,mldError));
+        } catch (Throwable e) {
+            mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
+        }
+    }
+    @Override
+    public void logoutAsync(@NonNull final MutableLiveData<Integer> mldLogoutResult,
+                            @NonNull final MutableLiveData<Throwable> mldError) {
+        try {
+            CompletableFuture<Void> call = getApi(null).logout(getB1Session().getB1Cookies());
+            call.thenAccept((v) -> {
+                b1Session._logoutSession();
+                mldLogoutResult.postValue(200);
+            }).exceptionally((e) -> {
+                mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
+                return null;
             });
-        } catch(Throwable e) {
-            if(e instanceof CompletionException) {
-                e = e.getCause();
-            }
-            mldError.postValue(e);
+        } catch (Throwable e) {
+            mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
         }
     }
 }

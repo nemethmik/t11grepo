@@ -29,28 +29,4 @@ public class DataSourceRepository {
         if(activitiesDataSource == null) activitiesDataSource = new B1ActivitiesDataSourceImpl(loginDataSource);
         return activitiesDataSource;
     }
-    private static ScheduledExecutorService executorServiceThreadPool = Executors.newScheduledThreadPool(3);
-    public static final int TIMEOUTINSECONDS = 10;
-    public void loginAsync(@NonNull String serverUrl,@NonNull String username,@NonNull String password,@NonNull String companyDB,
-                         @NonNull final MutableLiveData<B1Session> mldSession,
-                         @NonNull final MutableLiveData<Throwable> mldError) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    B1Session session = getLoginDS().login(serverUrl,username,password,companyDB);
-                    mldSession.postValue(session);
-                } catch (Throwable e) {
-                    mldError.postValue(e);
-                }
-            }
-        };
-        final Future scheduledJob = executorServiceThreadPool.schedule(r,0, TimeUnit.SECONDS);
-        executorServiceThreadPool.schedule(new Runnable() {
-            @Override public void run() { scheduledJob.cancel(true); }
-        },TIMEOUTINSECONDS,TimeUnit.SECONDS);
-        //It tries to kill the worker thread in a couple of seconds
-        //Actually, it really kills the job and an interrupt exception is sent to the error handler via the mldError
-    }
-
 }

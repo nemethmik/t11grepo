@@ -34,13 +34,18 @@ public class B1ActivitiesDataSourceImpl implements B1ActivitiesDataSourceIntf {
     public void queryActivitiesAsync(String filters,String select,
                                      @NonNull final MutableLiveData<B1Activities> mldActivities,
                                      @NonNull final MutableLiveData<Throwable> mldError) {
-            CompletableFuture.supplyAsync(() -> executeQuery(getApi().queryAllActivities(b1Cookies())))
-            .handle((a,e) -> handler(a,e,mldActivities,mldError));
-    }
-    public static <T> T handler(T a,Throwable e,MutableLiveData<T> mldOk,MutableLiveData<Throwable> mldError) {
-        if(e == null && a != null) mldOk.postValue(a);
-        else mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
-        return a;
+        try {
+            getApi().queryAllActivities(b1Cookies())
+            .handle((responseBody,e) -> handler(responseBody,e,mldActivities,mldError));
+        } catch (Throwable e) {
+            mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
+        }
+}
+    public static <T> T handler(T responseBody,Throwable e,MutableLiveData<T> mldOk,MutableLiveData<Throwable> mldError) {
+        if(e == null && responseBody != null) mldOk.postValue(responseBody);
+//        else mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
+        else B1LoginDataSourceImpl.exceptionally(e,mldError);
+        return responseBody;
     }
     public static <T> T executeQuery(Call<T> call) throws CompletionException {
 //        throw new CompletionException(new Exception("ERROR"));
