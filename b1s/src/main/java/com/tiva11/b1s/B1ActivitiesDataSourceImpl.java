@@ -19,7 +19,7 @@ import static com.tiva11.b1s.B1LoginDataSourceImpl.getGson;
 
 public class B1ActivitiesDataSourceImpl implements B1ActivitiesDataSourceIntf {
     private static final String TAG = "B1ActivitiesDataSourceImpl";
-    private final B1LoginDataSourceImpl loginDataSource;
+    private final B1LoginDataSourceIntf loginDataSource;
     private String b1Cookies(){return loginDataSource.getB1Session().getB1Cookies();}
     public B1ActivitiesDataSourceImpl(B1LoginDataSourceImpl loginDataSource) {
         this.loginDataSource = loginDataSource;
@@ -27,7 +27,7 @@ public class B1ActivitiesDataSourceImpl implements B1ActivitiesDataSourceIntf {
     private B1ActivitiesRetrofitIntf _api = null;
     protected B1ActivitiesRetrofitIntf getApi() {
         if(_api == null) {
-            _api = loginDataSource.getHttpClient(null).create(B1ActivitiesRetrofitIntf.class);
+            _api = loginDataSource.getRetrofitClient().create(B1ActivitiesRetrofitIntf.class);
         }
         return _api;
     }
@@ -44,7 +44,7 @@ public class B1ActivitiesDataSourceImpl implements B1ActivitiesDataSourceIntf {
     public static <T> T handler(T responseBody,Throwable e,MutableLiveData<T> mldOk,MutableLiveData<Throwable> mldError) {
         if(e == null && responseBody != null) mldOk.postValue(responseBody);
 //        else mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
-        else B1LoginDataSourceImpl.exceptionally(e,mldError);
+        else B1LoginDataSourceIntf.exceptionally(e,mldError);
         return responseBody;
     }
     public static <T> T executeQuery(Call<T> call) throws CompletionException {

@@ -15,7 +15,7 @@ public interface B1LoginVMIntf {
     LiveData<String> getUserNameError();
     LiveData<String> getPasswordError();
     LiveData<Boolean> getProgressBarVisible();
-    void loginAsync();//Before calling this, userName and password had to be streamed into the VM
-    void logoutAsync();
+    void onLoginAsync();//Before calling this, userName and password had to be streamed into the VM
+    void onLogoutAsync();
 }
 

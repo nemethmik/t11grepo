@@ -10,5 +10,5 @@ import com.tiva11.model.B1Session;
 public interface B1ActivitiesVMIntf {
     LiveData<B1Activities> getActivities();
     LiveData<Throwable> getError();
-    void queryActivitiesAsync(String filters,String select);
+    void onQueryActivitiesAsync(String filters, String select);
 }

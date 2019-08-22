@@ -92,9 +92,9 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
     }
 
     @Override
-//    public void loginAsync(String username, String password) {
-    public void loginAsync() {
-//        dataSourceRepository.getLoginDS().loginAsync("http://192.168.103.206:50001/b1s/v1/", username, password,"SBODEMOUS"
+//    public void onLoginAsync(String username, String password) {
+    public void onLoginAsync() {
+//        dataSourceRepository.getLoginDS().onLoginAsync("http://192.168.103.206:50001/b1s/v1/", username, password,"SBODEMOUS"
 //                ,mldLoginResult,mldError);
         String vtcServer = "http://192.168.103.206:50001/b1s/v1/";
         String companyDB = "SBODEMOHU";
@@ -102,12 +102,12 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
         String password = getPassword().getValue();
         mldProgressBarVisible.setValue(true);
         dataSourceRepository.getLoginDS().loginAsync(vtcServer, username, password,"SBODEMOUS"
-//        dataSourceRepository.getLoginDS().loginAsync(initServer, terra, pwd,"SBODEMOHU"
+//        dataSourceRepository.getLoginDS().onLoginAsync(initServer, terra, pwd,"SBODEMOHU"
         ,mldLoginResult,mldError);
     }
 
     @Override
-    public void logoutAsync() {
+    public void onLogoutAsync() {
         mldProgressBarVisible.setValue(true);
         dataSourceRepository.getLoginDS().logoutAsync(mldLogoutResult,mldError);
     }
@@ -131,7 +131,7 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
 
     private MutableLiveData<B1Activities> mldActivities = new MutableLiveData<>();
     @Override public LiveData<B1Activities> getActivities() { return mldActivities; }
-    @Override public void queryActivitiesAsync(String filters, String select) {
+    @Override public void onQueryActivitiesAsync(String filters, String select) {
         mldProgressBarVisible.setValue(true);
         dataSourceRepository.getActivitiesDS().queryActivitiesAsync(filters,select,mldActivities,mldError);
     }
