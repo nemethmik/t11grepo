@@ -15,8 +15,6 @@ import java.util.concurrent.ExecutionException;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import static com.tiva11.b1s.B1LoginDataSourceImpl.getGson;
-
 public class B1ActivitiesDataSourceImpl implements B1ActivitiesDataSourceIntf {
     private static final String TAG = "B1ActivitiesDataSourceImpl";
     private final B1LoginDataSourceIntf loginDataSource;
@@ -43,28 +41,7 @@ public class B1ActivitiesDataSourceImpl implements B1ActivitiesDataSourceIntf {
 }
     public static <T> T handler(T responseBody,Throwable e,MutableLiveData<T> mldOk,MutableLiveData<Throwable> mldError) {
         if(e == null && responseBody != null) mldOk.postValue(responseBody);
-//        else mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
         else B1LoginDataSourceIntf.exceptionally(e,mldError);
         return responseBody;
-    }
-    public static <T> T executeQuery(Call<T> call) throws CompletionException {
-//        throw new CompletionException(new Exception("ERROR"));
-        try {
-            Response<T> response = call.execute();//May throw IOException
-            if (response.isSuccessful() && response.body() != null) {
-                return response.body();
-            } else {
-                if (response.errorBody() != null) {
-                    //May throw IOException
-                    B1Error b1Error = getGson().fromJson(response.errorBody().string(), B1Error.class);
-                    if (b1Error != null) {
-                        throw new CompletionException(new B1Exception(b1Error, response.code(), response.message()));
-                    }
-                }
-                throw new CompletionException(new B1Exception(new B1Error(), response.code(), response.message()));
-            }
-        } catch (IOException e) {//This doesn'' catch CompletionExceptions
-            throw new CompletionException(e);
-        }
     }
 }
