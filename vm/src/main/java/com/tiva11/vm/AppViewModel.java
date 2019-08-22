@@ -21,6 +21,8 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
     private MutableLiveData<Throwable> mldError = new MutableLiveData<>();
     private MutableLiveData<String> mldUserName = new MutableLiveData<>();
     private MutableLiveData<String> mldPassword = new MutableLiveData<>();
+    private MutableLiveData<String> mldCompanyDB = new MutableLiveData<>();
+    private MutableLiveData<String> mldServerUrl = new MutableLiveData<>();
     private MutableLiveData<String> mldUserNameError = new MutableLiveData<>();
     private MutableLiveData<String> mldPasswordError = new MutableLiveData<>();
     private MutableLiveData<Boolean> mldProgressBarVisible = new MutableLiveData<>();
@@ -47,6 +49,8 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
         mldLogoutResult.observeForever(this::onLogoutResultReceived);
         mldActivities.observeForever(this::onActivitesReceived);
         mldError.observeForever(this::onErrorReceived);
+        mldServerUrl.postValue("http://192.168.103.206:50001/b1s/v1/");
+        mldCompanyDB.postValue("SBODEMOUS");
         mldUserName.postValue("manager");
         mldPassword.postValue("123qwe");
         mldProgressBarVisible.postValue(false);
@@ -54,6 +58,8 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
 
     @Override public MutableLiveData<String> getUserName() {return mldUserName;}
     @Override public MutableLiveData<String> getPassword() {return mldPassword;}
+    @Override public MutableLiveData<String> getCompanyDB() {return mldCompanyDB;}
+    @Override public MutableLiveData<String> getServerUrl() {return mldServerUrl;}
     @Override public LiveData<String> getUserNameError() {return mldUserNameError;}
     @Override public LiveData<String> getPasswordError() {return mldPasswordError;}
     @Override public LiveData<Boolean> getProgressBarVisible() {return mldProgressBarVisible;}
@@ -94,16 +100,12 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
     @Override
 //    public void onLoginAsync(String username, String password) {
     public void onLoginAsync() {
-//        dataSourceRepository.getLoginDS().onLoginAsync("http://192.168.103.206:50001/b1s/v1/", username, password,"SBODEMOUS"
-//                ,mldLoginResult,mldError);
-        String vtcServer = "http://192.168.103.206:50001/b1s/v1/";
-        String companyDB = "SBODEMOHU";
+        String companyDB = getCompanyDB().getValue();
         String username = getUserName().getValue();
         String password = getPassword().getValue();
+        String serverUrl = getServerUrl().getValue();
         mldProgressBarVisible.setValue(true);
-        dataSourceRepository.getLoginDS().loginAsync(vtcServer, username, password,"SBODEMOUS"
-//        dataSourceRepository.getLoginDS().onLoginAsync(initServer, terra, pwd,"SBODEMOHU"
-        ,mldLoginResult,mldError);
+        dataSourceRepository.getLoginDS().loginAsync(serverUrl, username, password,companyDB,mldLoginResult,mldError);
     }
 
     @Override

@@ -10,8 +10,10 @@ public interface B1LoginVMIntf {
     LiveData<B1Session> getLoginResult();
     LiveData<Integer> getLogoutResult();
     LiveData<Throwable> getError();
-    MutableLiveData<String> getUserName();//These two are required bafore calling loginAsinc
+    MutableLiveData<String> getUserName();//These four are required bafore calling loginAsinc
     MutableLiveData<String> getPassword();
+    MutableLiveData<String> getCompanyDB();
+    MutableLiveData<String> getServerUrl();
     LiveData<String> getUserNameError();
     LiveData<String> getPasswordError();
     LiveData<Boolean> getProgressBarVisible();
