@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
     }
     private boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_DONE) {
-            loginVM.loginAsync();
+            loginVM.onLoginAsync();
         }
         return false;
     }
