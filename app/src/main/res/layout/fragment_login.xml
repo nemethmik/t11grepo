@@ -9,17 +9,6 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
-
-
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,13 +18,14 @@
             app:cardCornerRadius="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar">
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                     android:id="@+id/userNameTextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -43,6 +33,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:hint="@string/user_name"
+                    app:errorText="@{loginVM.userNameError}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -57,15 +48,18 @@
                         android:inputType="text"
                         android:selectAllOnFocus="true"
                         android:text="@={loginVM.userName}"
-                        app:errorText="@{loginVM.userNameError}" />
+                         />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                     android:id="@+id/passwordTextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:imeOptions="actionNext"
+                    app:errorText="@{loginVM.passwordError}"
+                    android:hint="@string/password"
                     app:layout_constraintEnd_toEndOf="@+id/userNameTextInputLayout"
                     app:layout_constraintStart_toStartOf="@+id/userNameTextInputLayout"
                     app:layout_constraintTop_toBottomOf="@+id/userNameTextInputLayout"
@@ -79,14 +73,14 @@
                         android:layout_height="wrap_content"
                         android:drawableStart="@drawable/ic_vpn_key_black_24dp"
                         android:drawablePadding="8dp"
-                        android:hint="@string/password"
                         android:inputType="textPassword"
                         android:selectAllOnFocus="true"
                         android:text="@={loginVM.password}"
-                        app:errorText="@{loginVM.passwordError}" />
+                         />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                     android:id="@+id/companyDBTextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -109,6 +103,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
                     android:id="@+id/serverUrlTextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

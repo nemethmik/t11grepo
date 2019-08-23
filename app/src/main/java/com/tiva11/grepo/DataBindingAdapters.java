@@ -12,6 +12,7 @@ import androidx.databinding.BindingAdapter;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,6 +71,12 @@ public final class DataBindingAdapters {
 
     @BindingAdapter("errorText")
     public static void setErrorText(EditText view, String error) {
+        if(view != null) {
+            view.setError(error);
+        }
+    }
+    @BindingAdapter("errorText")
+    public static void setErrorText(TextInputLayout view, String error) {
         if(view != null) {
             view.setError(error);
         }

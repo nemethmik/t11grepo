@@ -65,16 +65,10 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
     @Override public LiveData<Boolean> getProgressBarVisible() {return mldProgressBarVisible;}
 
     private void onUserNameChanged(String userName) {
-        Log.i(TAG, "onUserNameChanged: " + userName);
-        if (!isUserNameValid(userName)) {
-            mldUserNameError.setValue(getApplication().getResources().getString(R.string.invalid_username));
-        }
+        mldUserNameError.setValue(isUserNameValid(userName) ? null : getApplication().getResources().getString(R.string.invalid_username));
     }
     private void onPasswordChanged(String password) {
-        Log.i(TAG, "onPasswordChanged: " + password);
-        if (!isPasswordValid(password)) {
-            mldPasswordError.setValue(getApplication().getResources().getString(R.string.invalid_password));
-        }
+        mldPasswordError.setValue(isPasswordValid(password) ? null : getApplication().getResources().getString(R.string.invalid_password));
     }
 
     private DataSourceRepository dataSourceRepository;
