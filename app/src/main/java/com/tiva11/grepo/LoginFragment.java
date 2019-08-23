@@ -41,9 +41,9 @@ public class LoginFragment extends Fragment {
         binding.setLoginVM(loginVM);
         //========== REMEMBER TO SET OBSERVERS AND LISTENERS, PLEASE USE METHOD REFERENCE SYNTAX
         loginVM.getLoginResult().observe(this,this::onLoginResultReceived);
-        loginVM.getLogoutResult().observe(this,this::onLogoutResultReceived);
+//        loginVM.getLogoutResult().observe(this,this::onLogoutResultReceived);
         loginVM.getError().observe(this, this::onErrorReceived);
-        binding.passwordTextInputEditText.setOnEditorActionListener(this::onEditorAction);
+//        binding.passwordTextInputEditText.setOnEditorActionListener(this::onEditorAction);
 
         return binding.getRoot();
     }
@@ -62,19 +62,19 @@ public class LoginFragment extends Fragment {
         String welcome = getString(R.string.welcome) + loginResult.getSessionId();
         Toast.makeText(getContext(), welcome, Toast.LENGTH_LONG).show();
     }
-    private void onLogoutResultReceived(@NonNull Integer logoutResult) {
-        Toast.makeText(getContext(), "Logout result "
-                + logoutResult, Toast.LENGTH_SHORT).show();
-    }
-    private void onActivitiesReceived(@NonNull B1Activities b1Activities) {
-        Toast.makeText(getContext(), "Number of B1 activities "
-                        + (b1Activities.getValue() == null ? 0 : b1Activities.getValue().size())
-                , Toast.LENGTH_SHORT).show();
-    }
-    private boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_DONE) {
-            loginVM.onLoginAsync();
-        }
-        return false;
-    }
+//    private void onLogoutResultReceived(@NonNull Integer logoutResult) {
+//        Toast.makeText(getContext(), "Logout result "
+//                + logoutResult, Toast.LENGTH_SHORT).show();
+//    }
+//    private void onActivitiesReceived(@NonNull B1Activities b1Activities) {
+//        Toast.makeText(getContext(), "Number of B1 activities "
+//                        + (b1Activities.getValue() == null ? 0 : b1Activities.getValue().size())
+//                , Toast.LENGTH_SHORT).show();
+//    }
+//    private boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//        if (actionId == EditorInfo.IME_ACTION_DONE) {
+//            loginVM.onLoginAsync();
+//        }
+//        return false;
+//    }
 }
