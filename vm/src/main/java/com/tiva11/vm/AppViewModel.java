@@ -9,6 +9,7 @@ import android.app.Application;
 import android.util.Log;
 import android.util.Patterns;
 
+import com.tiva11.b1s.DataSourceRepoIntf;
 import com.tiva11.b1s.DataSourceRepository;
 import com.tiva11.model.B1Activities;
 import com.tiva11.model.B1Session;
@@ -71,13 +72,19 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
         mldPasswordError.setValue(isPasswordValid(password) ? null : getApplication().getResources().getString(R.string.invalid_password));
     }
 
-    private DataSourceRepository dataSourceRepository;
+    private DataSourceRepoIntf _dataSourceRepository;
+    private DataSourceRepoIntf getDataSourceRepository() {
+        if(_dataSourceRepository == null) {
+            mldError.setValue(new Exception("Data Source Repository Not Initialized"));
+        }
+        return _dataSourceRepository;
+    }
 
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
 
-    AppViewModel setDataSourceRepository(DataSourceRepository dataSourceRepository) {
-        this.dataSourceRepository = dataSourceRepository;
+    AppViewModel setDataSourceRepository(DataSourceRepoIntf dataSourceRepository) {
+        this._dataSourceRepository = dataSourceRepository;
         return this;
     }
     @Override
@@ -99,13 +106,17 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
         String password = getPassword().getValue();
         String serverUrl = getServerUrl().getValue();
         mldProgressBarVisible.setValue(true);
-        dataSourceRepository.getLoginDS().loginAsync(serverUrl, username, password,companyDB,mldLoginResult,mldError);
+        if(getDataSourceRepository() != null) {
+            getDataSourceRepository().getLoginDS().loginAsync(serverUrl, username, password, companyDB, mldLoginResult, mldError);
+        }
     }
 
     @Override
     public void onLogoutAsync() {
         mldProgressBarVisible.setValue(true);
-        dataSourceRepository.getLoginDS().logoutAsync(mldLogoutResult,mldError);
+        if(getDataSourceRepository() != null) {
+            getDataSourceRepository().getLoginDS().logoutAsync(mldLogoutResult, mldError);
+        }
     }
 
     // A placeholder username validation check
@@ -129,6 +140,8 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
     @Override public LiveData<B1Activities> getActivities() { return mldActivities; }
     @Override public void onQueryActivitiesAsync(String filters, String select) {
         mldProgressBarVisible.setValue(true);
-        dataSourceRepository.getActivitiesDS().queryActivitiesAsync(filters,select,mldActivities,mldError);
+        if(getDataSourceRepository() != null) {
+            getDataSourceRepository().getActivitiesDS().queryActivitiesAsync(filters, select, mldActivities, mldError);
+        }
     }
 }

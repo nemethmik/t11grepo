@@ -9,13 +9,14 @@ import com.tiva11.b1s.DataSourceRepository;
  * Required given AppViewModel has a non-empty constructor
  */
 public class ViewModelFactory{
+    public static boolean useDemoDataSources = false;
     public static B1LoginVMIntf getLoginVM(ViewModelStoreOwner owner){
         AppViewModel vm = new ViewModelProvider(owner).get(AppViewModel.class);
-        return vm.setDataSourceRepository(DataSourceRepository.getInstance());
+        return vm.setDataSourceRepository(DataSourceRepository.getInstance(useDemoDataSources));
     }
     public static B1ActivitiesVMIntf getActivitiesVM(ViewModelStoreOwner owner) {
         AppViewModel vm = new ViewModelProvider(owner).get(AppViewModel.class);
-        return vm.setDataSourceRepository(DataSourceRepository.getInstance());
+        return vm.setDataSourceRepository(DataSourceRepository.getInstance(useDemoDataSources));
     }
 
 }

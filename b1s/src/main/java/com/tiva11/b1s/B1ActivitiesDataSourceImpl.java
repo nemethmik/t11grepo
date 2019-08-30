@@ -19,7 +19,7 @@ public class B1ActivitiesDataSourceImpl implements B1ActivitiesDataSourceIntf {
     private static final String TAG = "B1ActivitiesDataSourceImpl";
     private final B1LoginDataSourceIntf loginDataSource;
     private String b1Cookies(){return loginDataSource.getB1Session().getB1Cookies();}
-    public B1ActivitiesDataSourceImpl(B1LoginDataSourceImpl loginDataSource) {
+    public B1ActivitiesDataSourceImpl(B1LoginDataSourceIntf loginDataSource) {
         this.loginDataSource = loginDataSource;
     }
     private B1ActivitiesRetrofitIntf _api = null;

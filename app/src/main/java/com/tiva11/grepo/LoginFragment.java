@@ -35,6 +35,7 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentLoginBinding.inflate(inflater);
+        ViewModelFactory.useDemoDataSources = true;
         loginVM = ViewModelFactory.getLoginVM(getActivity());
         //========== REMEMBER TO SET THE BINDING VARIABLES AND SET THE LIFECYCLE OWNER
         binding.setLifecycleOwner(this);

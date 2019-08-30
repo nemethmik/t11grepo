@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         //setSupportActionBar(binding.); // We have no toolbar at the moment
         binding.setLifecycleOwner(this);
-
+        ViewModelFactory.useDemoDataSources = true;
         loginVM = ViewModelFactory.getLoginVM(this);
         // It may happen that the CM factory creates the same VM for this interface, too
         activitiesVM = loginVM instanceof B1ActivitiesVMIntf
