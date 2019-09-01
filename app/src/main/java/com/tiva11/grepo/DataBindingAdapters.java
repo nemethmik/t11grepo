@@ -69,13 +69,13 @@ public final class DataBindingAdapters {
         }
     }
 
-    @BindingAdapter("app:errorText")
+    @BindingAdapter("errorText")
     public static void setErrorText(EditText view, String error) {
         if(view != null) {
             view.setError(error);
         }
     }
-    @BindingAdapter("app:errorText")
+    @BindingAdapter("errorText")
     public static void setErrorText(TextInputLayout view, String error) {
         if(view != null) {
             view.setError(error);

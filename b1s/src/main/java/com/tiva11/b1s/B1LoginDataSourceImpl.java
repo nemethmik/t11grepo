@@ -3,8 +3,10 @@ package com.tiva11.b1s;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
+import com.tiva11.model.B1BusinessPlace;
 import com.tiva11.model.B1LoginRequest;
 import com.tiva11.model.B1Session;
+import com.tiva11.model.Event;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -63,7 +65,7 @@ class B1LoginDataSourceImpl implements B1LoginDataSourceIntf {
     public void loginAsync(@NonNull final String serverUrl, @NonNull String username,
                            @NonNull String password, @NonNull String companyDB,
                                    @NonNull final MutableLiveData<B1Session> mldSession,
-                                   @NonNull final MutableLiveData<Throwable> mldError) {
+                                   @NonNull final MutableLiveData<Event<Throwable>> mldError) {
         try {
             final B1LoginRequest lr = new B1LoginRequest(username,password, companyDB);
             getApi(serverUrl).login(lr)
@@ -74,23 +76,27 @@ class B1LoginDataSourceImpl implements B1LoginDataSourceIntf {
             })
             .exceptionally(e -> B1LoginDataSourceIntf.exceptionally(e,mldError));
         } catch (Throwable e) {
-            mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
+            mldError.postValue(new Event<>(e instanceof CompletionException ? e.getCause() : e));
         }
     }
     @Override
     public void logoutAsync(@NonNull final MutableLiveData<Integer> mldLogoutResult,
-                            @NonNull final MutableLiveData<Throwable> mldError) {
+                            @NonNull final MutableLiveData<Event<Throwable>> mldError) {
         try {
             CompletableFuture<Void> call = getApi(null).logout(getB1Session().getB1Cookies());
             call.thenAccept((v) -> {
                 b1Session._logoutSession();
                 mldLogoutResult.postValue(200);
             }).exceptionally((e) -> {
-                mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
+                mldError.postValue(new Event<>(e instanceof CompletionException ? e.getCause() : e));
                 return null;
             });
         } catch (Throwable e) {
-            mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
+            mldError.postValue(new Event<>(e instanceof CompletionException ? e.getCause() : e));
         }
+    }
+    @Override
+    public void queryBusinessPlaces(@NonNull final MutableLiveData<B1BusinessPlace.B1BusinessPlaces> mldBusinessPlaces, @NonNull final MutableLiveData<Event<Throwable>> mldError) {
+        mldError.postValue(new Event<>(new Exception("queryBusinessPlaces Not implemented")));
     }
 }

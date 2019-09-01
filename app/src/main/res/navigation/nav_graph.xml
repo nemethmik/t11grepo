@@ -9,5 +9,40 @@
         android:id="@+id/loginFragment"
         android:name="com.tiva11.grepo.LoginFragment"
         android:label="fragment_login"
-        tools:layout="@layout/fragment_login" />
+        tools:layout="@layout/login_fragment" >
+        <action
+            android:id="@+id/to_businessPlaceListDialogFragment"
+            app:destination="@id/businessPlaceListDialogFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_welcomeScreen"
+            app:destination="@id/welcomeScreen"
+            app:launchSingleTop="false" />
+    </fragment>
+    <dialog
+        android:id="@+id/businessPlaceListDialogFragment"
+        android:name="com.tiva11.grepo.BusinessPlaceListDialogFragment"
+        android:label="fragment_businessplace_list_dialog"
+        tools:layout="@layout/businessplace_list_dialog_fragment" >
+        <argument
+            android:name="item_count"
+            app:argType="integer" />
+    </dialog>
+
+    <action
+        android:id="@+id/to_businessPlaceListDialogFragment"
+        app:destination="@id/businessPlaceListDialogFragment" />
+
+    <fragment
+        android:id="@+id/welcomeScreen"
+        android:name="com.tiva11.grepo.WelcomeScreen"
+        android:label="welcome_screen"
+        tools:layout="@layout/welcome_screen" />
+
+    <action
+        android:id="@+id/to_welcomeScreen"
+        app:destination="@id/welcomeScreen"
+        app:launchSingleTop="false" />
+    <action
+        android:id="@+id/to_loginFragment"
+        app:destination="@id/loginFragment" />
 </navigation>

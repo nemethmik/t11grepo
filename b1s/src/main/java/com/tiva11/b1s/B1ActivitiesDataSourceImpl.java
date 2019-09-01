@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.tiva11.model.B1Activities;
 import com.tiva11.model.B1Error;
 import com.tiva11.model.B1Exception;
+import com.tiva11.model.Event;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -31,15 +32,15 @@ public class B1ActivitiesDataSourceImpl implements B1ActivitiesDataSourceIntf {
     }
     public void queryActivitiesAsync(String filters,String select,
                                      @NonNull final MutableLiveData<B1Activities> mldActivities,
-                                     @NonNull final MutableLiveData<Throwable> mldError) {
+                                     @NonNull final MutableLiveData<Event<Throwable>> mldError) {
         try {
             getApi().queryAllActivities(b1Cookies())
             .handle((responseBody,e) -> handler(responseBody,e,mldActivities,mldError));
         } catch (Throwable e) {
-            mldError.postValue(e instanceof CompletionException ? e.getCause() : e);
+            mldError.postValue(new Event<>(e instanceof CompletionException ? e.getCause() : e));
         }
 }
-    public static <T> T handler(T responseBody,Throwable e,MutableLiveData<T> mldOk,MutableLiveData<Throwable> mldError) {
+    public static <T> T handler(T responseBody,Throwable e,MutableLiveData<T> mldOk,MutableLiveData<Event<Throwable>> mldError) {
         if(e == null && responseBody != null) mldOk.postValue(responseBody);
         else B1LoginDataSourceIntf.exceptionally(e,mldError);
         return responseBody;

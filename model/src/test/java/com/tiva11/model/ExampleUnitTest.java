@@ -24,7 +24,7 @@ public class ExampleUnitTest {
         assertEquals(4, 2 + 2);
     }
     @Test
-    public void parsingjsonfile_gson() {
+    public void parsingjsonfile_activities() {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
         BufferedReader br = null;
         try {
@@ -138,6 +138,34 @@ public class ExampleUnitTest {
             assertNotNull(s.getSessionId());
             System.out.println(s.getSessionTimeout());
             assertTrue(s.getSessionTimeout() > 0);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    @Test
+    public void parsingjsonfile_businessplaces() {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader("businessplaces.json"));
+            B1BusinessPlace.B1BusinessPlaces businessPlaces = gson.fromJson(br, B1BusinessPlace.B1BusinessPlaces.class);
+            if (businessPlaces != null) {
+                assertNotNull(businessPlaces);
+                System.out.println("Number of activities "+ businessPlaces.getValue().size());
+                assertTrue("Empty array",businessPlaces.getValue().size() > 0);
+                for (B1BusinessPlace bp : businessPlaces.getValue()) {
+                    System.out.println("Code " + bp.getBPLID() + " - " + bp.getBPLName() + " Incoportation Date " + bp.getDateOfIncorporation());
+                    assertTrue("BPL Code is not greater than 0",bp.getBPLID() > 0);
+                }
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } finally {
