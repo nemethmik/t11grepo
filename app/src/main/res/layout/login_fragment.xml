@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="loginVM" type="com.tiva11.vm.B1LoginVMIntf" />
+        <variable name="appVM" type="com.tiva11.vm.AppViewModelIntf" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,7 +33,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:hint="@string/user_name"
-                    app:errorText="@{loginVM.userNameError}"
+                    app:errorText="@{appVM.userNameError}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -47,7 +47,7 @@
                         android:imeOptions="actionNext"
                         android:inputType="text"
                         android:selectAllOnFocus="true"
-                        android:text="@={loginVM.userName}"
+                        android:text="@={appVM.userName}"
                          />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -58,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:imeOptions="actionNext"
-                    app:errorText="@{loginVM.passwordError}"
+                    app:errorText="@{appVM.passwordError}"
                     android:hint="@string/password"
                     app:layout_constraintEnd_toEndOf="@+id/userNameTextInputLayout"
                     app:layout_constraintStart_toStartOf="@+id/userNameTextInputLayout"
@@ -75,7 +75,7 @@
                         android:drawablePadding="8dp"
                         android:inputType="textPassword"
                         android:selectAllOnFocus="true"
-                        android:text="@={loginVM.password}"
+                        android:text="@={appVM.password}"
                          />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -99,7 +99,7 @@
                         android:hint="@string/company_db"
                         android:inputType="text"
                         android:selectAllOnFocus="true"
-                        android:text="@={loginVM.companyDB}" />
+                        android:text="@={appVM.companyDB}" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -123,14 +123,14 @@
                         android:imeOptions="actionDone"
                         android:inputType="textUri"
                         android:selectAllOnFocus="true"
-                        android:text="@={loginVM.serverUrl}" />
+                        android:text="@={appVM.serverUrl}" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/loginButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{()->loginVM.onLoginAsync()}"
+                    android:onClick="@{()->appVM.onLoginAsync()}"
                     android:text="@string/login"
                     app:layout_constraintStart_toStartOf="@+id/userNameTextInputLayout"
                     app:layout_constraintTop_toBottomOf="@+id/serverUrlTextInputLayout" />
@@ -142,7 +142,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="8dp"
-                    android:visibility="@{loginVM.progressBarVisible}"
+                    android:visibility="@{appVM.progressBarVisible}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/userNameTextInputLayout"
@@ -156,7 +156,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:indeterminate="true"
-                    android:visibility="@{loginVM.progressBarVisible}"
+                    android:visibility="@{appVM.progressBarVisible}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/progressBar1"
@@ -167,7 +167,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@{loginVM.loginResult.sessionId}"
+                    android:text="@{appVM.loginResult.sessionId}"
                     app:layout_constraintStart_toStartOf="@+id/loginButton"
                     app:layout_constraintTop_toBottomOf="@+id/loginButton"
                     tools:text="Session ID" />
@@ -178,10 +178,20 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
-                    android:text="@{loginVM.businessPlace.bPLName}"
+                    android:text="@{appVM.businessPlace.bPLName}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/loginButton"
                     tools:text="Branch ID" />
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@{appVM.userDetail.value.get(0).getUserName()}"
+                    app:layout_constraintStart_toStartOf="@+id/sessionId"
+                    app:layout_constraintTop_toBottomOf="@+id/sessionId"
+                    tools:text="Name of the User" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>

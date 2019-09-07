@@ -29,7 +29,7 @@ public class ExampleUnitTest {
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader("activities_list.json"));
-            B1Activities activities = gson.fromJson(br, B1Activities.class);
+            B1Activity.B1Activities activities = gson.fromJson(br, B1Activity.B1Activities.class);
             if (activities != null) {
                 assertNotNull(activities);
                 System.out.println("Number of activities "+ activities.getValue().size());
@@ -84,7 +84,7 @@ public class ExampleUnitTest {
         try {
             br = new BufferedReader(new FileReader("error306failtogetdbcredentials.json"));
             String jsonString = br.lines().collect(Collectors.joining());
-            B1Activities activities = gson.fromJson(jsonString, B1Activities.class);
+            B1Activity.B1Activities activities = gson.fromJson(jsonString, B1Activity.B1Activities.class);
             assertNull(activities.getValue());
             B1Error error = gson.fromJson(jsonString,B1Error.class);
             assertNotNull(error.getError());
@@ -159,11 +159,78 @@ public class ExampleUnitTest {
             B1BusinessPlace.B1BusinessPlaces businessPlaces = gson.fromJson(br, B1BusinessPlace.B1BusinessPlaces.class);
             if (businessPlaces != null) {
                 assertNotNull(businessPlaces);
-                System.out.println("Number of activities "+ businessPlaces.getValue().size());
+                System.out.println("Number of branches "+ businessPlaces.getValue().size());
                 assertTrue("Empty array",businessPlaces.getValue().size() > 0);
                 for (B1BusinessPlace bp : businessPlaces.getValue()) {
                     System.out.println("Code " + bp.getBPLID() + " - " + bp.getBPLName() + " Incoportation Date " + bp.getDateOfIncorporation());
                     assertTrue("BPL Code is not greater than 0",bp.getBPLID() > 0);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    @Test
+    public void parsingjsonfile_user_manager() {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader("user_manager.json"));
+            B1User.B1Users users = gson.fromJson(br, B1User.B1Users.class);
+            if (users != null) {
+                assertNotNull(users);
+                System.out.println("Number of users "+ users.getValue().size());
+                assertTrue("Empty array",users.getValue().size() > 0);
+                for (B1User u : users.getValue()) {
+                    //There is no Last Login Date :(
+                    System.out.println("Code " + u.getUserCode() + " - " + u.getUserName() + " Last Login Time " + u.getLastLoginTime());
+                    assertTrue("User Code is not manager", "manager".equals(u.getUserCode()));
+                    assertTrue("Has UserActionRecords",u.getUserActionRecord().size() > 0);
+                    B1User.UserActionRecord uar = u.getUserActionRecord().get(u.getUserActionRecord().size() - 1);
+                    System.out.println("Last action " + uar.getAction() + " on " + uar.getActionDate());
+                    uar = null;
+                    for(B1User.UserActionRecord r:u.getUserActionRecord()) {
+                        if(r.getAction().equals("actionLogin")) {
+                            uar = r;//last login
+                        }
+                    }
+                    System.out.println("Last login date " + uar.getAction() + " on " + uar.getActionDate());
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    @Test
+    public void parsingjsonfile_purchaseorders_allopen() {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader("purchaseorders_allopen1000.json"));
+            B1Document.B1Documents pos = gson.fromJson(br, B1Document.B1Documents.class);
+            if (pos != null) {
+                assertNotNull(pos);
+                System.out.println("Number of POs "+ pos.getValue().size());
+                assertTrue("Empty array",pos.getValue().size() > 0);
+                for (B1Document document : pos.getValue()) {
+                    System.out.println("Code " + document.getDocNum() + " - " + document.getCardName() + " Date " + document.getDocDueDate());
+                    assertTrue("DocNum is not greater than 0",document.getDocNum() > 0);
                 }
             }
         } catch (FileNotFoundException e) {

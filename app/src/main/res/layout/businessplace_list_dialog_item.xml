@@ -1,25 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
-            name="value"
-            type="Integer" />
+            name="bp"
+            type="com.tiva11.model.B1BusinessPlace" />
         <variable
-            name="VM"
-            type="com.tiva11.vm.B1LoginVMIntf" />
+            name="appVM"
+            type="com.tiva11.vm.AppViewModelIntf" />
     </data>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/text"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    android:paddingLeft="@dimen/list_item_spacing"
-    android:paddingTop="@dimen/list_item_spacing_half"
-    android:paddingRight="@dimen/list_item_spacing"
-    android:paddingBottom="@dimen/list_item_spacing_half"
-    android:textAppearance="@style/TextAppearance.AppCompat.Large"
-    android:text="@{value}"
-    android:onClick="@{(v)->VM.onBusinessPlaceChosen(value)}"
-    tools:text="Hello" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:contentDescription="@string/branch_icon"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_business_black_24dp" />
+
+                <TextView
+                    android:id="@+id/text"
+                    android:layout_width="318dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="@{(v)->appVM.onBusinessPlaceChosen(bp)}"
+                    android:paddingLeft="@dimen/list_item_spacing"
+                    android:paddingTop="@dimen/list_item_spacing_half"
+                    android:paddingRight="@dimen/list_item_spacing"
+                    android:paddingBottom="@dimen/list_item_spacing_half"
+                    android:text="@{bp.bPLName}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    app:layout_constraintStart_toEndOf="@+id/imageView"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Business Location Name" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

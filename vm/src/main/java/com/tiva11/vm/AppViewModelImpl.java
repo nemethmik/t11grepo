@@ -4,24 +4,29 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
 import android.app.Application;
 import android.util.Patterns;
 
-import com.tiva11.b1s.DataSourceRepoIntf;
-import com.tiva11.model.B1Activities;
+import com.tiva11.b1s.B1ServiceLayerIntf;
+import com.tiva11.model.B1Activity;
 import com.tiva11.model.B1BusinessPlace;
+import com.tiva11.model.B1Document;
 import com.tiva11.model.B1Session;
+import com.tiva11.model.B1User;
 import com.tiva11.model.Event;
 
 // REMEMBER TO MAKE A VIEW MODEL CLASS PUBLIC OTHERWISE YOUR APPLICATION CRASHES
-public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1ActivitiesVMIntf {
-    private static final String TAG = "AppViewModel";
+public class AppViewModelImpl extends AndroidViewModel implements AppViewModelIntf {
+    private static final String TAG = "AppViewModelImpl";
     private MutableLiveData<B1Session> mldLoginResult = new MutableLiveData<>();
+    @Override
+    public LiveData<B1User.B1Users> getUserDetail() { return mldUserDetail; }
+    @Override
+    public LiveData<B1Document.B1Documents> getPurchaseOrders() { return mldPurchaseOrders; }
     private MutableLiveData<Integer> mldLogoutResult = new MutableLiveData<>();
     private MutableLiveData<Event<Throwable>> mldError = new MutableLiveData<>();
-    private MutableLiveData<Event<Command>> mldCommand = new MutableLiveData<>();
+    private MutableLiveData<Event<NotificationsForUI>> mldCommand = new MutableLiveData<>();
     private MutableLiveData<String> mldUserName = new MutableLiveData<>();
     private MutableLiveData<String> mldPassword = new MutableLiveData<>();
     private MutableLiveData<String> mldCompanyDB = new MutableLiveData<>();
@@ -29,28 +34,53 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
     private MutableLiveData<String> mldUserNameError = new MutableLiveData<>();
     private MutableLiveData<String> mldPasswordError = new MutableLiveData<>();
     private MutableLiveData<Boolean> mldProgressBarVisible = new MutableLiveData<>();
+    private MutableLiveData<B1User.B1Users> mldUserDetail = new MutableLiveData<>();//It has only one user
 
-
+    private void onUserDetailReceived(B1User.B1Users userDetail) {
+        if(userDetail != null) {
+            //TODO: If user is assigned only one Branch query that branch
+            b1s().queryBusinessPlacesAsync(mldBusinessPlaces, mldError);
+        }
+    }
     private void onLoginResultReceived(B1Session b1Session) {
         mldBusinessPlace.setValue(null);
         mldBusinessPlaces.setValue(null);
-        getDataSourceRepository().getLoginDS().queryBusinessPlaces(mldBusinessPlaces,mldError);
+        mldUserDetail.setValue(null);
+        mldActivities.setValue(null);
+        mldPurchaseOrders.setValue(null);
+        b1s().queryUsersAsync("UserCode eq '" + mldUserName.getValue() + "'",null, mldUserDetail,mldError);
 //        mldProgressBarVisible.setValue(false);
     }
     private void onLogoutResultReceived(Integer logoutResult) {
         mldProgressBarVisible.setValue(false);
         mldBusinessPlace.setValue(null);
     }
-    private void onActivitesReceived(B1Activities b1Activities) {
-        mldProgressBarVisible.setValue(false);
+    private void onActivitesReceived(B1Activity.B1Activities b1Activities) {
+        if(b1Activities != null) {
+            mldCommand.setValue(new Event<>(NotificationsForUI.ProgressInfo_TasksDataArrived));
+            prepareDataForWelcomeScreen();
+        }
+    }
+    void prepareDataForWelcomeScreen(){
+        if(mldPurchaseOrders.getValue() != null && mldActivities.getValue() != null) {
+            //TODO: process purchase orders and tasks for welcome screen
+            mldProgressBarVisible.setValue(false);
+            mldCommand.setValue(new Event<>(NotificationsForUI.ShowOpenPurchaseOrdersTasksAndPendingTransactions));
+        }
+    }
+    private void onPurchaseOrdersReceived(B1Document.B1Documents documents) {
+        if(documents != null) {
+            mldCommand.setValue(new Event<>(NotificationsForUI.ProgressInfo_PurchaseOrdersDataArrived));
+            prepareDataForWelcomeScreen();
+        }
     }
     private void onBusinessPlacesReceived(B1BusinessPlace.B1BusinessPlaces businessPlaces) {
         if(businessPlaces != null) {
             mldProgressBarVisible.setValue(false);
             if (businessPlaces.getValue() != null && businessPlaces.getValue().size() > 1) {
-                mldCommand.setValue(new Event<>(Command.LogInOKPickBranch));
+                mldCommand.setValue(new Event<>(NotificationsForUI.LogInOKPickBranch));
             } else {
-                mldCommand.setValue(new Event<>(Command.LogInOKNoNeedToPickBranchProceedToWelcomeScreen));
+                mldCommand.setValue(new Event<>(NotificationsForUI.LogInOKNoNeedToPickBranchProceedToWelcomeScreen));
             }
         }
     }
@@ -58,7 +88,7 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
         mldProgressBarVisible.setValue(false);
     }
     // REMEMBER TO MAKE A VIEW MODEL CLASS CONSTRUCTOR PUBLIC OTHERWISE YOUR APPLICATION CRASHES
-    public AppViewModel(@NonNull Application application) {
+    public AppViewModelImpl(@NonNull Application application) {
         super(application);
         //These observer are required only for real-time validation, otherwise they are not required at all
         mldUserName.observeForever(this::onUserNameChanged);
@@ -67,6 +97,8 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
         mldLogoutResult.observeForever(this::onLogoutResultReceived);
         mldActivities.observeForever(this::onActivitesReceived);
         mldBusinessPlaces.observeForever(this::onBusinessPlacesReceived);
+        mldPurchaseOrders.observeForever(this::onPurchaseOrdersReceived);
+        mldUserDetail.observeForever(this::onUserDetailReceived);
         mldError.observeForever(this::onErrorReceived);
         mldServerUrl.postValue("http://192.168.103.206:50001/b1s/v1/");
         mldCompanyDB.postValue("SBODEMOUS");
@@ -90,20 +122,16 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
         mldPasswordError.setValue(isPasswordValid(password) ? null : getApplication().getResources().getString(R.string.invalid_password));
     }
 
-    private DataSourceRepoIntf _dataSourceRepository;
-    private DataSourceRepoIntf getDataSourceRepository() {
-        if(_dataSourceRepository == null) {
-            mldError.setValue(new Event<>(new Exception("Data Source Repository Not Initialized")));
-        }
-        return _dataSourceRepository;
-    }
-
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
-
-    AppViewModel setDataSourceRepository(DataSourceRepoIntf dataSourceRepository) {
-        this._dataSourceRepository = dataSourceRepository;
+    private B1ServiceLayerIntf _b1SeriviceLayer;
+    AppViewModelImpl setB1ServiceLayer(B1ServiceLayerIntf b1ServiceLayer) {
+        this._b1SeriviceLayer = b1ServiceLayer;
         return this;
+    }
+    B1ServiceLayerIntf b1s(){
+        if(_b1SeriviceLayer == null) mldError.setValue(new Event<>(new Exception("Service Layer not Initialized")));
+        return _b1SeriviceLayer;
     }
     @Override
     public LiveData<B1Session> getLoginResult() {
@@ -112,7 +140,7 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
     @Override
     public LiveData<Integer> getLogoutResult() { return mldLogoutResult; }
     @Override
-    public LiveData<Event<Command>> getCommand() { return mldCommand; }
+    public LiveData<Event<NotificationsForUI>> getCommand() { return mldCommand; }
     @Override
     public LiveData<Event<Throwable>> getError() {
         return mldError;
@@ -126,17 +154,16 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
         String password = getPassword().getValue();
         String serverUrl = getServerUrl().getValue();
         mldProgressBarVisible.setValue(true);
-        if(getDataSourceRepository() != null) {
-            getDataSourceRepository().getLoginDS().loginAsync(serverUrl, username, password, companyDB, mldLoginResult, mldError);
+        //Login is the typical first call, so protect it
+        if(b1s() != null) {
+            b1s().loginAsync(serverUrl, username, password, companyDB, mldLoginResult, mldError);
         }
     }
 
     @Override
     public void onLogoutAsync() {
         mldProgressBarVisible.setValue(true);
-        if(getDataSourceRepository() != null) {
-            getDataSourceRepository().getLoginDS().logoutAsync(mldLogoutResult, mldError);
-        }
+        b1s().logoutAsync(mldLogoutResult, mldError);
     }
     private MutableLiveData<B1BusinessPlace> mldBusinessPlace = new MutableLiveData<>();
     @Override
@@ -145,17 +172,11 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
     }
 
     @Override
-    public void onBusinessPlaceChosen(int businessPlace) {
-        if(getBusinessPlaces().getValue() != null && getBusinessPlaces().getValue().getValue() != null) {
-            for (B1BusinessPlace bp : getBusinessPlaces().getValue().getValue()) {
-                if (bp.getBPLID() == businessPlace) {
-                    mldBusinessPlace.setValue(bp);
-                    mldCommand.setValue(new Event<>(Command.BranchPickedProceedToWelcomeScreen));
-                    return;
-                }
-            }
-            mldError.setValue(new Event<>(new Exception("No business places found with ID " + businessPlace)));
-        } else mldError.setValue(new Event<>(new Exception("No business places are available")));
+    public void onBusinessPlaceChosen(B1BusinessPlace businessPlace) {
+        if(businessPlace != null) {
+            mldBusinessPlace.setValue(businessPlace);
+            mldCommand.setValue(new Event<>(NotificationsForUI.BranchPickedProceedToWelcomeScreen));
+        }
     }
 
     // A placeholder username validation check
@@ -176,12 +197,28 @@ public class AppViewModel extends AndroidViewModel implements B1LoginVMIntf, B1A
     }
     private MutableLiveData<B1BusinessPlace.B1BusinessPlaces> mldBusinessPlaces = new MutableLiveData<>();
     @Override public LiveData<B1BusinessPlace.B1BusinessPlaces> getBusinessPlaces() { return mldBusinessPlaces; }
-    private MutableLiveData<B1Activities> mldActivities = new MutableLiveData<>();
-    @Override public LiveData<B1Activities> getActivities() { return mldActivities; }
+    private MutableLiveData<B1Activity.B1Activities> mldActivities = new MutableLiveData<>();
+    @Override public LiveData<B1Activity.B1Activities> getActivities() { return mldActivities; }
     @Override public void onQueryActivitiesAsync(String filters, String select) {
         mldProgressBarVisible.setValue(true);
-        if(getDataSourceRepository() != null) {
-            getDataSourceRepository().getActivitiesDS().queryActivitiesAsync(filters, select, mldActivities, mldError);
+        b1s().queryActivitiesAsync(filters, mldActivities, mldError);
+    }
+    private MutableLiveData<B1Document.B1Documents> mldPurchaseOrders = new MutableLiveData<>();
+    @Override
+    public void onWelcomeScreenOpened() {
+        try {
+            mldProgressBarVisible.setValue(true);
+            String filter = "DocumentStatus eq 'bost_Open'";
+            if (mldBusinessPlace.getValue() != null) {
+                int branch = mldBusinessPlace.getValue().getBPLID();
+                filter += " and BPL_IDAssignedToInvoice eq " + branch;
+            }
+            int userId = mldUserDetail.getValue().getValue().get(0).getInternalKey();
+            b1s().queryPurchaseOrdersAsync(filter, "DocDueDate", mldPurchaseOrders, mldError);
+            b1s().queryActivitiesAsync(
+                    "Activity eq 'cn_Task' and Status eq -2 and DocType eq '22' and HandledBy eq " + userId, mldActivities, mldError);
+        } catch(Throwable t) {
+            mldError.setValue(new Event<>(t));
         }
     }
 }

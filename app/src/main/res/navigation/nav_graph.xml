@@ -8,24 +8,24 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.tiva11.grepo.LoginFragment"
-        android:label="fragment_login"
-        tools:layout="@layout/login_fragment" >
+        android:label="GrePO Login"
+        tools:layout="@layout/login_fragment">
         <action
-            android:id="@+id/to_businessPlaceListDialogFragment"
+            android:id="@+id/action_loginFragment_to_businessPlaceListDialogFragment"
             app:destination="@id/businessPlaceListDialogFragment" />
         <action
             android:id="@+id/action_loginFragment_to_welcomeScreen"
-            app:destination="@id/welcomeScreen"
-            app:launchSingleTop="false" />
+            app:destination="@id/welcomeScreen" />
     </fragment>
     <dialog
         android:id="@+id/businessPlaceListDialogFragment"
         android:name="com.tiva11.grepo.BusinessPlaceListDialogFragment"
-        android:label="fragment_businessplace_list_dialog"
-        tools:layout="@layout/businessplace_list_dialog_fragment" >
-        <argument
-            android:name="item_count"
-            app:argType="integer" />
+        android:label="Choose Business Place"
+        tools:layout="@layout/businessplace_list_dialog_fragment">
+        <action
+            android:id="@+id/action_businessPlaceListDialogFragment_to_welcomeScreen"
+            app:destination="@id/welcomeScreen"
+            app:popUpTo="@+id/loginFragment" />
     </dialog>
 
     <action
@@ -35,7 +35,7 @@
     <fragment
         android:id="@+id/welcomeScreen"
         android:name="com.tiva11.grepo.WelcomeScreen"
-        android:label="welcome_screen"
+        android:label="Goods Receipt PO"
         tools:layout="@layout/welcome_screen" />
 
     <action

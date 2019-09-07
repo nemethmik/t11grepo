@@ -1,7 +1,6 @@
 package com.tiva11.grepo;
 import android.os.Bundle;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,7 +14,8 @@ import android.widget.Toast;
 
 import com.tiva11.grepo.databinding.WelcomeScreenBinding;
 import com.tiva11.model.Event;
-import com.tiva11.vm.B1LoginVMIntf;
+import com.tiva11.vm.AppViewModelIntf;
+import com.tiva11.vm.NotificationsForUI;
 import com.tiva11.vm.ViewModelFactory;
 
 /**
@@ -23,34 +23,47 @@ import com.tiva11.vm.ViewModelFactory;
  */
 public class WelcomeScreen extends Fragment {
     private WelcomeScreenBinding binding;
-    private B1LoginVMIntf loginVM;
+    private AppViewModelIntf appVM;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = WelcomeScreenBinding.inflate(inflater);
-        loginVM = ViewModelFactory.getLoginVM(requireActivity());
+        appVM = ViewModelFactory.getLoginVM(requireActivity());
         binding.setLifecycleOwner(this);
+        binding.setAppVM(appVM);
+        appVM.getCommand().observe(this,this::onCommandReceived);
+        appVM.getError().observe(this, e->MainActivity.onErrorReceived(e,getContext()));
         return binding.getRoot();
     }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        appVM.onWelcomeScreenOpened();
         NavController navController = Navigation.findNavController(view);
     }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-//        loginVM = ViewModelFactory.getLoginVM(requireActivity());
-//        new ChoseBusinessPlaceDialog(loginVM).show(getFragmentManager(),"ChooseBranch");
-        // This callback will only be called when MyFragment is at least Started.
-//        OnBackPressedCallback callback = new OnBackPressedCallback(false) {
-//            @Override
-//            public void handleOnBackPressed() {
-//                Toast.makeText(getActivity(),"Back Button",Toast.LENGTH_SHORT).show();
-//                Navigation.findNavController(binding.getRoot()).navigate(NavGraphDirections.toLoginFragment());
-//            }
-//        };
-//        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+    private void onCommandReceived(@NonNull Event<NotificationsForUI> command) {
+        if (!command.hasBeenConsumed()) {
+            NavController navController = Navigation.findNavController(binding.getRoot());
+            switch (command.consume()) {
+                case ShowOpenPurchaseOrdersTasksAndPendingTransactions:
+//                    Toast.makeText(getContext(),
+//                            "POs " + appVM.getPurchaseOrders().getValue().getValue().size()
+//                                    + " Tasks " + appVM.getActivities().getValue().getValue().size()
+//                                    + " for " + appVM.getUserDetail().getValue().getValue().get(0).getUserName()
+//                            , Toast.LENGTH_LONG).show();
+                    break;
+                case ProgressInfo_TasksDataArrived:
+                    Toast.makeText(getContext(), "Tasks " + appVM.getActivities().getValue().getValue().size()
+                                    + " for " + appVM.getUserDetail().getValue().getValue().get(0).getUserName(),
+                            Toast.LENGTH_SHORT).show();
+                    break;
+                case ProgressInfo_PurchaseOrdersDataArrived:
+                    Toast.makeText(getContext(),
+                            "POs " + appVM.getPurchaseOrders().getValue().getValue().size()
+                                    + " for " + appVM.getUserDetail().getValue().getValue().get(0).getUserName()
+                            , Toast.LENGTH_LONG).show();
+                    break;
+            }
+        }
     }
 }

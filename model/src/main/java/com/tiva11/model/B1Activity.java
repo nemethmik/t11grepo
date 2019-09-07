@@ -791,5 +791,33 @@ public class B1Activity implements Serializable
     public void setCheckInListParams(List<Object> checkInListParams) {
         this.checkInListParams = checkInListParams;
     }
+    public static class B1Activities implements Serializable
+    {
+
+        @SerializedName("odata.metadata")
+        @Expose
+        private String odataMetadata;
+        @SerializedName("value")
+        @Expose
+        private List<B1Activity> value = null;
+        private final static long serialVersionUID = -7198309465636289876L;
+
+        public String getOdataMetadata() {
+            return odataMetadata;
+        }
+
+        public void setOdataMetadata(String odataMetadata) {
+            this.odataMetadata = odataMetadata;
+        }
+
+        public List<B1Activity> getValue() {
+            return value;
+        }
+
+        public void setValue(List<B1Activity> value) {
+            this.value = value;
+        }
+
+    }
 
 }
